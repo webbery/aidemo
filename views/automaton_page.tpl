@@ -8,6 +8,52 @@
         <script src="https://cdn.bootcss.com/d3/5.9.7/d3.min.js"></script>
     </head>
     <body>
-        <iframe height="100%" width="100%" src="http://www.a4z.cn/pui/ant-admin.html#/simple-force-chart"></iframe>
+        <div class="form-inline">
+        <textarea id="input_text" style="min-width: 40%" class="form-control" rows="4"></textarea>
+        <button type="button" class="btn btn-primary" onclick="sendNews2Server()">Extract=></button>
+        </div>
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th >名字</th>
+                    <th>说话内容</th>
+                </tr>
+            </thead>
+            <tbody id="summaries">
+                <tr>
+                <td>Tanmay</td>
+                <td>Bangalore</td>
+                </tr>
+                <tr>
+                <td>Sachin</td>
+                <td>Mumbai</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <script>
+            function sendNews2Server(){
+                console.info($("#input_text").val())
+                $("#summaries").html("");
+                $.ajax({
+                    type: 'POST',
+                    url: '/automaton/summary',
+                    data: {},
+                    dataType: 'json',
+                    success: function (data){
+                        console.info(data)
+                        let html="";
+                        for(let idx=0;idx<data.summary.length;++idx){
+                            const frag = "<tr><td>"+data.summary[idx].speaker+"</td><td>"+data.summary[idx].content+"</td></tr>";
+                            html+=frag;
+                        }
+                        $("#summaries").html(html);
+                    },
+                    error: function () {
+
+                    }
+                })
+            };
+        </script>
     </body>
 </html>
