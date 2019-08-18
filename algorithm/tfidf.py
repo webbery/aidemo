@@ -1,20 +1,42 @@
 import jieba
 import math
+import stanfordnlp
+from sklearn.feature_extraction.text import TfidfVectorizer
 
-class tfidf(docs):
-    def __init__(self, docs):
-        self.docs = docs
-        self.word_count = len(doc)
+class TFIDF:
+    def __init__(self):
+        config = {
+            'processors': 'tokenize',
+            'models_dir': 'D:/UnixlikePrograms/nlp/stanford_resources',
+            'lang':'zh'
+        }
+        self._nlp = stanfordnlp.Pipeline(**config)
+        self._tf = TfidfVectorizer()
 
-    def tf(self, word):
-        return len(word)/self.word_count
+    def vectorizer(self,news):
+        doc = self._nlp(news)
+        print(len(doc.sentences))
+        self._sentences=[]
+        for sent in doc.sentences:
+            sentence=""
+            for word in sent.words:
+                sentence += word.text+" "
+            self._sentences.append(sentence)
+        # print(tokenize)
+        data = self._tf.fit_transform(self._sentences)
+        # tf-idf是如何得到特征的?
+        # print("特征：")
+        # print(tf.get_feature_names())
+        # print("特征的大小：")
+        # print(len(tf.get_feature_names()))
+        # print("词向量：")
+        # print(data.toarray())
+        # print("第一列词向量的个数:")
+        # print(len(data.toarray()[0]))
+        return data.toarray()
 
-    def idf(self,word):
-        # get document count which contain word
-        doc_count_of_word = 0
-        for doc in self.docs:
-            if doc[word]>0: doc_count_of_word+=1
-        return math.log(len(self.docs)/(doc_count_of_word+1))
+    def display(self,indexes):
+        for idx in range(len(indexes)):
+            if indexes[idx]==True:
+                print(self._sentences[idx])
 
-    def score(self,word):
-        return tf(self,word)*idf(self,word)
