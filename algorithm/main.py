@@ -47,13 +47,13 @@ class Sentence:
 
     #命名实体识别
     def get_name_entity(self):
-        print(list(self.words))
-        print(list(self.netags))
+        # print(list(self.words))
+        # print(list(self.netags))
         return self.netags
 
     # 句子依存分析
     def parsing(self):
-        print(' '.join("%d:%s" % (arc.head, arc.relation) for arc in self.arcs))
+        # print(' '.join("%d:%s" % (arc.head, arc.relation) for arc in self.arcs))
         return self.arcs
 
     def get_name(self):
@@ -61,6 +61,9 @@ class Sentence:
 
     def get_posttags(self):
         return self.postags
+
+    def get_words(self):
+        return self.words
 
 #命名实体识别
 def get_name_entity(sentence):
@@ -174,5 +177,7 @@ def parse_sentence(sentence,  ws=False):
 sentence = Sentence("今天很热，小王说明天不想去上班了。")
 entity = sentence.get_name_entity()
 wp = sentence.parsing()
+posttags = sentence.get_posttags()
+words = sentence.get_words()
 for k,v in enumerate(wp):
-    print(k,v)
+    print(words[k],posttags[k],v.relation,v.head)
