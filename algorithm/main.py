@@ -65,6 +65,37 @@ class Sentence:
     def get_words(self):
         return self.words
 
+    def get_saying(self,start):
+        pos = start
+        while pos<len(self.words):
+            relation = self.arcs[pos].relation
+            # 谓语尚未结束
+            if relation in ['DBL', 'CMP', 'RAD','VOP']:
+                pos += 1
+                continue
+            head = self.arcs[pos].head
+            # 定语
+            if head == 'ATT' :
+                pos = head
+                continue
+            if self.words[pos] == '，':
+                return ''.join(self.words[pos+1:])
+            else:
+                return ''.join(self.words[pos:])
+
+    def parse(self):
+        name = ''
+        saying = ''
+        entity = self.get_name_entity()
+        wp = self.parsing()
+        for k,v in enumerate(wp):
+            # print(words[k],posttags[k],v.relation,v.head)
+            if v.relation=='SBV' and (self.words[v.head-1] in say_words): #确定主谓句
+                name = self.words[k]
+                saying = self.get_saying(v.head)
+                return (name,saying)
+        return ('','')
+
 #命名实体识别
 def get_name_entity(sentence):
     #sentence = ''.join(strs)
@@ -174,10 +205,6 @@ def parse_sentence(sentence,  ws=False):
 # print(parse_sentence("小王说因为天气太热不想去上班了。他宣称这么热的天去上班可能会中暑。"))
 
 # sentence = Sentence("今天很热，明天不想去上班了,小王说")
+# sentence = Sentence("小王说因为天气太热不想去上班了。他宣称这么热的天去上班可能会中暑。")
 sentence = Sentence("今天很热，小王说明天不想去上班了。")
-entity = sentence.get_name_entity()
-wp = sentence.parsing()
-posttags = sentence.get_posttags()
-words = sentence.get_words()
-for k,v in enumerate(wp):
-    print(words[k],posttags[k],v.relation,v.head)
+print(sentence.parse())
