@@ -1,8 +1,10 @@
-import stanfordnlp
-from stanfordcorenlp import StanfordCoreNLP
-import tfidf
+# import stanfordnlp
+# from stanfordcorenlp import StanfordCoreNLP
 import pagerank
 import numpy as np
+import parsing
+import re
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 # stanfordnlp.download('zh',resource_dir='D:/UnixlikePrograms/nlp/stanford_resources')
 # nlp = stanfordnlp.Pipeline(lang='zh',models_dir='D:/UnixlikePrograms/nlp/stanford_resources',processors="tokenize,lemma,pos,depparse")
@@ -19,12 +21,22 @@ text = """
 # doc.sentences[0].print_dependencies()
 # print(*[f'text: {word.text+" "}\tlemma: {word.lemma}\tupos: {word.upos}\txpos: {word.xpos}' for sent in doc.sentences for word in sent.words], sep='\n')
 
-tf_idf = tfidf.TFIDF()
-vec = tf_idf.vectorizer(text)
-m = pagerank.likely_probability(vec)
+def process_news(news):
+    #split sentences
+    pattern = re.compile('.+[。！]')
+    sentences = pattern.findall(news)
+    print(sentences)
+    tfidf = TfidfVectorizer()
+    model = tfidf.fit(sentences)
+    sparse_matrix = model.transform(sentences)
+
+process_news(text)
+# 
+# vec = tf_idf.vectorizer(text)
+# m = pagerank.likely_probability(vec)
 # pagerank.score(m)
-PR = pagerank.PR_score(m).reshape(1,-1)[0]
-max_num_index=np.argpartition(PR,3)
-print(max_num_index<=2)
-tf_idf.display(max_num_index<=2)
+# PR = pagerank.PR_score(m).reshape(1,-1)[0]
+# max_num_index=np.argpartition(PR,3)
+# print(max_num_index<=2)
+# tf_idf.display(max_num_index<=2)
 # nlp = StanfordCoreNLP('D:/UnixlikePrograms/nlp/stanford_resources/')

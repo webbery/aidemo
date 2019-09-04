@@ -1,17 +1,17 @@
-import jieba
+# import jieba
 import math
 import stanfordnlp
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 class TFIDF:
     def __init__(self):
-        config = {
-            'processors': 'tokenize',
-            'models_dir': 'D:/UnixlikePrograms/nlp/stanford_resources',
-            'lang':'zh'
-        }
-        self._nlp = stanfordnlp.Pipeline(**config)
-        self._tf = TfidfVectorizer()
+        # config = {
+        #     'processors': 'tokenize',
+        #     'models_dir': 'D:/UnixlikePrograms/nlp/stanford_resources',
+        #     'lang':'zh'
+        # }
+        # self._nlp = stanfordnlp.Pipeline(**config)
+        # self._tf = TfidfVectorizer()
 
     def vectorizer(self,news):
         doc = self._nlp(news)

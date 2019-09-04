@@ -15,8 +15,6 @@ postagger = Postagger()#词性标注
 recognizer = NamedEntityRecognizer()#命名主体识别
 parser = Parser()#依存分析
 
-print('------')
-
 segmentor.load(cws_model_path)
 postagger.load(pos_model_path)
 recognizer.load(ner_model_path)
@@ -206,5 +204,5 @@ def parse_sentence(sentence,  ws=False):
 
 # sentence = Sentence("今天很热，明天不想去上班了,小王说")
 # sentence = Sentence("小王说因为天气太热不想去上班了。他宣称这么热的天去上班可能会中暑。")
-sentence = Sentence("今天很热，小王说明天不想去上班了。")
-print(sentence.parse())
+# sentence = Sentence("今天很热，小王说明天不想去上班了。")
+# print(sentence.parse())
