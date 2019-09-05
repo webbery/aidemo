@@ -1,4 +1,7 @@
 from bottle import route, run, template,hook,post,request
+import sys 
+sys.path.append("./algorithm") 
+from algorithm.train import process_news
 
 @route('/')
 def automaton():
@@ -14,8 +17,15 @@ def validate():
 
 @post('/automaton/summary')
 def sign():
+    lines =request.body.readlines()
+    news = ''
+    for line in lines:
+        doc = str(line, encoding = "utf-8")
+        news += doc
+        print( doc )
+    result = process_news(news)
     return {"summary":[
-        {"speaker":"aaaaa","content":"00000000000000"}
+        {"speaker": item[0],"content":item[1]} for item in result
     ]}
 
 run(host='localhost', port=8080, debug=True)

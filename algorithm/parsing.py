@@ -20,7 +20,7 @@ postagger.load(pos_model_path)
 recognizer.load(ner_model_path)
 parser.load(par_model_path)
 
-say_words = ['诊断', '交代', '说', '说道', '指出','报道','报道说','称', '警告',
+say_words = [':','诊断', '交代', '说', '说道', '指出','报道','报道说','称', '警告',
            '所说', '告诉', '声称', '表示', '时说', '地说', '却说', '问道', '写道', 
            '答道', '感叹', '谈到', '说出', '认为', '提到', '强调', '宣称', '表明', 
            '明确指出', '所言', '所述', '所称', '所指', '常说', '断言', '名言', '告知', 
@@ -68,7 +68,7 @@ class Sentence:
         while pos<len(self.words):
             relation = self.arcs[pos].relation
             # 谓语尚未结束
-            if relation in ['DBL', 'CMP', 'RAD','VOP']:
+            if relation in ['DBL', 'CMP', 'RAD','VOP'] or self.words[pos]=='：':
                 pos += 1
                 continue
             head = self.arcs[pos].head
@@ -87,7 +87,7 @@ class Sentence:
         entity = self.get_name_entity()
         wp = self.parsing()
         for k,v in enumerate(wp):
-            # print(words[k],posttags[k],v.relation,v.head)
+            print(self.words[k],self.postags[k],v.relation,v.head)
             if v.relation=='SBV' and (self.words[v.head-1] in say_words): #确定主谓句
                 name = self.words[k]
                 saying = self.get_saying(v.head)

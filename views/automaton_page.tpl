@@ -15,8 +15,8 @@
         <table class="table table-hover">
             <thead>
                 <tr>
-                    <th >名字</th>
-                    <th>说话内容</th>
+                    <th >人物</th>
+                    <th>观点</th>
                 </tr>
             </thead>
             <tbody id="summaries">
@@ -38,7 +38,7 @@
                 $.ajax({
                     type: 'POST',
                     url: '/automaton/summary',
-                    data: {},
+                    data: $("#input_text").val(),
                     dataType: 'json',
                     success: function (data){
                         console.info(data)
