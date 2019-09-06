@@ -1,3 +1,9 @@
+import json
+
+config = None
+with open("./config.json",'r') as load_f:
+    config = json.load(load_f)
+
 from bottle import route, run, template,hook,post,request
 import sys 
 sys.path.append("./algorithm") 
@@ -28,4 +34,4 @@ def sign():
         {"speaker": item[0],"content":item[1]} for item in result
     ]}
 
-run(host='localhost', port=8080, debug=True)
+run(host='0.0.0.0', port=config['port'], debug=False)
