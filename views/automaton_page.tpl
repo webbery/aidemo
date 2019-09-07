@@ -20,14 +20,6 @@
                 </tr>
             </thead>
             <tbody id="summaries">
-                <tr>
-                <td>Tanmay</td>
-                <td>Bangalore</td>
-                </tr>
-                <tr>
-                <td>Sachin</td>
-                <td>Mumbai</td>
-                </tr>
             </tbody>
         </table>
 

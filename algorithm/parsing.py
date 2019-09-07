@@ -3,11 +3,17 @@ from pyltp import Postagger
 from pyltp import Parser
 from pyltp import NamedEntityRecognizer
 from pyltp import SentenceSplitter
+import json
 
-cws_model_path = '/home/webberg/ltp_data_v3.4.0/cws.model'
-pos_model_path = '/home/webberg/ltp_data_v3.4.0/pos.model'
-par_model_path = '/home/webberg/ltp_data_v3.4.0/parser.model'
-ner_model_path = '/home/webberg/ltp_data_v3.4.0/ner.model'
+config = None
+with open("config.json",'r') as load_f:
+    config = json.load(load_f)
+
+# print(config)
+cws_model_path = config['model']+'/cws.model'
+pos_model_path = config['model']+'/pos.model'
+par_model_path = config['model']+'/parser.model'
+ner_model_path = config['model']+'/ner.model'
 
 #初始化
 segmentor = Segmentor()#分词
@@ -73,7 +79,7 @@ class Sentence:
                 continue
             head = self.arcs[pos].head
             # 定语
-            if head == 'ATT' :
+            if relation == 'ATT' :
                 pos = head
                 continue
             if self.words[pos] == '，':
@@ -81,18 +87,41 @@ class Sentence:
             else:
                 return ''.join(self.words[pos:])
 
+    def get_subj(self,start):
+        pos = start
+        names = []
+        while pos<len(self.words):
+            if self.words[pos]=='，': break
+            # 主语尚未结束
+            relation = self.arcs[pos].relation
+            if relation in ['LAD','ATT']:
+                pos += 1
+                continue
+            head = self.arcs[pos].head
+            # print(self.words[pos],relation)
+            if relation in ['SBV','COO']:
+                names.append(self.words[pos])
+            pos += 1
+        # print(names)
+        return names
+
     def parse(self):
-        name = ''
+        names = None
         saying = ''
         entity = self.get_name_entity()
         wp = self.parsing()
         for k,v in enumerate(wp):
-            print(self.words[k],self.postags[k],v.relation,v.head)
+            # print(self.words[k],self.postags[k],v.relation,v.head)
+            # print(self.words[v.head-1])
             if v.relation=='SBV' and (self.words[v.head-1] in say_words): #确定主谓句
-                name = self.words[k]
-                saying = self.get_saying(v.head)
-                return (name,saying)
-        return ('','')
+                # name = self.words[k]
+                names = self.get_subj(k)
+                # print(names)
+                if saying=='':
+                    saying = self.get_saying(v.head)
+                continue
+        # print(names)
+        return (names,saying)
 
 #命名实体识别
 def get_name_entity(sentence):

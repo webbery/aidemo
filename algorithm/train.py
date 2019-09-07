@@ -9,7 +9,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 # stanfordnlp.download('zh',resource_dir='D:/UnixlikePrograms/nlp/stanford_resources')
 # nlp = stanfordnlp.Pipeline(lang='zh',models_dir='D:/UnixlikePrograms/nlp/stanford_resources',processors="tokenize,lemma,pos,depparse")
 text = """
-但韩国网友对“韩国海军陆战队世界第二”的说法不以为然。不少网友留言嘲讽称：“这似乎是韩国海军陆战队争取国防预算的软文”。
+对此，俄罗斯总统普京及俄外交部对意大利此举表示强烈不满，并警告称这种行为是不公平竞争的一个例子，将损害两国关系。
 """
 # doc = nlp(text)
 # doc.sentences[0].print_dependencies()
@@ -19,11 +19,12 @@ def process_news(news):
     #split sentences
     pattern = re.compile('.+?[。！]')
     sentences = pattern.findall(news)
-    print(sentences)
+    # print(sentences)
     results = []
     for sentence in sentences:
         sent = Sentence(sentence)
         result = sent.parse()
+        if result[0]==None: continue
         results.append(result)
     # print(sentences)
     # tfidf = TfidfVectorizer()
