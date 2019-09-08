@@ -2,7 +2,6 @@ from pyltp import Segmentor
 from pyltp import Postagger
 from pyltp import Parser
 from pyltp import NamedEntityRecognizer
-from pyltp import SentenceSplitter
 import json
 
 config = None
