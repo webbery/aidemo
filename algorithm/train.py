@@ -1,10 +1,10 @@
 # import stanfordnlp
 # from stanfordcorenlp import StanfordCoreNLP
-import pagerank
-import numpy as np
+#import pagerank
+#import numpy as np
 from parsing import Sentence
 import re
-from sklearn.feature_extraction.text import TfidfVectorizer
+#from sklearn.feature_extraction.text import TfidfVectorizer
 
 # stanfordnlp.download('zh',resource_dir='D:/UnixlikePrograms/nlp/stanford_resources')
 # nlp = stanfordnlp.Pipeline(lang='zh',models_dir='D:/UnixlikePrograms/nlp/stanford_resources',processors="tokenize,lemma,pos,depparse")
