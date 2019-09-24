@@ -29,13 +29,13 @@
                 $("#summaries").html("");
                 $.ajax({
                     type: 'POST',
-                    url: '/automaton/summary',
+                    url: '/automaton/viewpoint',
                     data: $("#input_text").val(),
                     dataType: 'json',
                     success: function (data){
                         console.info(data)
                         let html="";
-                        for(let idx=0;idx<data.summary.length;++idx){
+                        for(let idx=0;idx<data.viewpoint.length;++idx){
                             const frag = "<tr><td>"+data.summary[idx].speaker+"</td><td>"+data.summary[idx].content+"</td></tr>";
                             html+=frag;
                         }
