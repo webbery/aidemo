@@ -4,7 +4,7 @@ config = None
 with open("./config.json",'r') as load_f:
     config = json.load(load_f)
 
-from bottle import route, run, template,hook,post,request
+from bottle import route, run, template,hook,post,request,response
 import sys 
 sys.path.append("./algorithm") 
 from algorithm.train import process_news
@@ -17,12 +17,16 @@ def validate():
     if REQUEST_METHOD == 'OPTIONS' and HTTP_ACCESS_CONTROL_REQUEST_METHOD:
         request.environ['REQUEST_METHOD'] = HTTP_ACCESS_CONTROL_REQUEST_METHOD
 
+def enable_cors(fn):
+    def _enable_cors_impl(*args, **kwargs):
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Methods'] = 'GET,POST'
+        response.headers['Access-Control-Allow-Headers'] = 'Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token'
 
-@hook('after_request')
-def enable_cors():
-    response.headers['Access-Control-Allow-Origin'] = 'colern.com'
-    # response.headers['Access-Control-Allow-Methods'] = 'GET,POST,PUT,DELETE,OPTIONS'
-    response.headers['Access-Control-Allow-Headers'] = 'colern.com'
+        if bottle.request.method != 'OPTIONS':
+            return fn(*args, **kwargs)
+
+    return _enable_cors_impl
 
 @route('/')
 def automaton():
@@ -37,6 +41,7 @@ def validate():
             request.environ['REQUEST_FORM'] = request.POST.get('_form', '')
 
 @post('/automaton/viewpoint')
+@enable_cors
 def sign():
     lines =request.body.readlines()
     news = ''
