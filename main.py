@@ -4,7 +4,7 @@ config = None
 with open("./config.json",'r') as load_f:
     config = json.load(load_f)
 
-from bottle import route, run, template,hook,post,request,response
+from bottle import route, run, template,hook,post,request,response,install
 import sys 
 sys.path.append("./algorithm") 
 from algorithm.train import process_news
