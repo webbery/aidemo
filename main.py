@@ -17,16 +17,22 @@ def validate():
     if REQUEST_METHOD == 'OPTIONS' and HTTP_ACCESS_CONTROL_REQUEST_METHOD:
         request.environ['REQUEST_METHOD'] = HTTP_ACCESS_CONTROL_REQUEST_METHOD
 
-def enable_cors(fn):
-    def _enable_cors_impl(*args, **kwargs):
-        response.headers['Access-Control-Allow-Origin'] = '*'
-        response.headers['Access-Control-Allow-Methods'] = 'GET,POST'
-        response.headers['Access-Control-Allow-Headers'] = 'Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token'
+class EnableCors(object):
+    name = 'enable_cors'
+    api = 2
 
-        if bottle.request.method != 'OPTIONS':
-            return fn(*args, **kwargs)
+    def apply(self, fn, context):
+        def _enable_cors(*args, **kwargs):
+            # set CORS headers
+            response.headers['Access-Control-Allow-Origin'] = '*'
+            response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, OPTIONS'
+            response.headers['Access-Control-Allow-Headers'] = 'Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token'
 
-    return _enable_cors_impl
+            if bottle.request.method != 'OPTIONS':
+                # actual request; reply with the actual response
+                return fn(*args, **kwargs)
+
+        return _enable_cors
 
 @route('/')
 def automaton():
@@ -41,7 +47,6 @@ def validate():
             request.environ['REQUEST_FORM'] = request.POST.get('_form', '')
 
 @post('/automaton/viewpoint')
-@enable_cors
 def sign():
     lines =request.body.readlines()
     news = ''
@@ -54,4 +59,5 @@ def sign():
         {"speaker": item[0],"content":item[1]} for item in result
     ]}
 
+install(EnableCors())
 run(host='0.0.0.0', port=config['port'], debug=False)
