@@ -54,8 +54,6 @@ class Sentence:
 
     #命名实体识别
     def get_name_entity(self):
-        # print(list(self.words))
-        # print(list(self.netags))
         return self.netags
 
     # 句子依存分析
@@ -114,15 +112,10 @@ class Sentence:
         entity = self.get_name_entity()
         wp = self.parsing()
         for k,v in enumerate(wp):
-            # print(self.words[k],self.postags[k],v.relation,v.head)
-            # print(self.words[v.head-1])
             if v.relation=='SBV' and (self.words[v.head-1] in say_words): #确定主谓句
-                # name = self.words[k]
                 names = self.get_subj(k)
-                # print(names)
                 if saying=='':
                     saying = self.get_saying(v.head)
                 continue
-        # print(names)
         return (names,saying)
 

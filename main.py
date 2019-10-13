@@ -5,11 +5,12 @@ with open("./config.json",'r') as load_f:
     config = json.load(load_f)
 
 from flask import Flask,request,jsonify
+from flask import render_template
 app = Flask(__name__)
 
 import sys 
 sys.path.append("./algorithm") 
-from algorithm.train import process_news
+# from algorithm.opinion_extraction.interface import process_news
 
 # 跨域支持
 def after_request(resp):
@@ -18,12 +19,12 @@ def after_request(resp):
 
 @app.route('/',methods=['GET'])
 def index():
-    return "hello world"
+    return render_template("views/index.html")
 
 @app.route('/automaton/viewpoint',methods=['POST','GET'])
 def viewpoint():
-    #news =request.get_data().decode('utf-8')
-    news = request.args.get('news')
+    news =request.get_data().decode('utf-8')
+    # news = request.args.get('news')
     try:
         result = process_news(news)
         return jsonify({"viewpoint":[
@@ -33,6 +34,6 @@ def viewpoint():
         return ""
 
 app.after_request(after_request)
-#app.run(host='0.0.0.0', port=config['port'], debug=False)
-app.run(host='0.0.0.0', port=config['port'], debug=False, ssl_context=('server.crt','server.key'))
+app.run(host='0.0.0.0', port=config['port'], debug=False)
+# app.run(host='0.0.0.0', port=config['port'], debug=False, ssl_context=('server.crt','server.key'))
 
