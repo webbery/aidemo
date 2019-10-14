@@ -11,6 +11,12 @@ app = Flask(__name__)
 import sys 
 sys.path.append("./algorithm") 
 # from algorithm.opinion_extraction.interface import process_news
+from algorithm.summarization_extraction.interface import get_abstract
+
+status_code = {
+    'success': 0,
+    'fail': -1
+}
 
 # 跨域支持
 def after_request(resp):
@@ -18,10 +24,22 @@ def after_request(resp):
     return resp
 
 @app.route('/',methods=['GET'])
-def index():
+def get_index():
     return render_template("index.html")
 
-@app.route('/automaton/viewpoint',methods=['POST','GET'])
+@app.route('/aidemo/pointview',methods=['GET'])
+def get_pointview():
+    return render_template("pointview.html")
+
+@app.route('/aidemo/summarization',methods=['GET'])
+def get_summarization():
+    return render_template("summarization.html")
+
+@app.route('/aidemo/subway',methods=['GET'])
+def get_subway():
+    return render_template("summarization.html")
+
+@app.route('/apis/viewpoint',methods=['POST','GET'])
 def viewpoint():
     news =request.get_data().decode('utf-8')
     # news = request.args.get('news')
@@ -29,9 +47,18 @@ def viewpoint():
         result = process_news(news)
         return jsonify({"viewpoint":[
             {"speaker": item[0],"content":item[1]} for item in result
-        ]})
+        ],"result":status_code['success']})
     except:
-        return ""
+        return jsonify({"result":status_code['fail']})
+
+@app.route('/apis/summatization',methods=['POST','GET'])
+def summatization():
+    news =request.get_data().decode('utf-8')
+    try:
+        abstract = get_abstract(news)
+        return jsonify({"abstract":abstract,"result":status_code['success']})
+    except:
+        return jsonify({"result":status_code['fail']})
 
 app.after_request(after_request)
 app.run(host='0.0.0.0', port=config['port'], debug=False)

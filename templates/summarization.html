@@ -25,10 +25,33 @@
                 <button type="button" class="btn btn-success btn-block btn-md" onclick="extractSummarization()">
                     提取摘要
                 </button>
-
+                <div id="summarization"></div>
             </div>
             <div class="col-md-4">
             </div>
         </div>
     </div>
+    <script>
+        function extractSummarization(){
+            $("#summarization").html('');
+            $.ajax({
+                type: 'POST',
+                url: '/apis/summarization',
+                data: $("#input_text").val(),
+                dataType: 'json',
+                success: function (data){
+                    console.info(data)
+                    let html="";
+                    for(let idx=0;idx<data.viewpoint.length;++idx){
+                        const frag = "<tr><td>"+data.viewpoint[idx].speaker+"</td><td>"+data.viewpoint[idx].content+"</td></tr>";
+                        html+=frag;
+                    }
+                    $("#summarization").html(html);
+                },
+                error: function (msg) {
+
+                }
+            })
+        }
+    </script>
 </body>

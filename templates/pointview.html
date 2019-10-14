@@ -48,7 +48,7 @@
             $("#summaries").html("");
             $.ajax({
                 type: 'POST',
-                url: 'http://59.111.94.24:8977/automaton/viewpoint',
+                url: '/apis/viewpoint',
                 data: $("#input_text").val(),
                 dataType: 'json',
                 success: function (data){
@@ -61,7 +61,7 @@
                     $("#summaries").html(html);
                 },
                 error: function (msg) {
-
+                    
                 }
             })
         }
