@@ -19,7 +19,7 @@ def after_request(resp):
 
 @app.route('/',methods=['GET'])
 def index():
-    return render_template("views/index.html")
+    return render_template("index.html")
 
 @app.route('/automaton/viewpoint',methods=['POST','GET'])
 def viewpoint():
