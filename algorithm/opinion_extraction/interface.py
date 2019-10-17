@@ -1,4 +1,4 @@
-from parsing import Sentence
+from algorithm.opinion_extraction.parsing import Sentence
 import re
 
 text = """

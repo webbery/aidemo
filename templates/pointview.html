@@ -4,7 +4,6 @@
 
 <head>
     <meta charset="utf-8" />
-    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     <title>Demo</title>
     <link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" type="text/css" href="/stylesheets/paper-preview.css" />
@@ -46,9 +45,10 @@
     <script>
         function extractNews(){
             $("#summaries").html("");
+            console.info('------------');
             $.ajax({
                 type: 'POST',
-                url: '/apis/viewpoint',
+                url: 'http://59.111.94.24:8977/apis/viewpoint',
                 data: $("#input_text").val(),
                 dataType: 'json',
                 success: function (data){
@@ -61,7 +61,7 @@
                     $("#summaries").html(html);
                 },
                 error: function (msg) {
-                    
+		    console.info(msg);                    
                 }
             })
         }

@@ -1,4 +1,10 @@
-################################################  1. 句子向量化 ##########################################
+import json
+
+config = None
+with open("./config.json",'r') as load_f:
+    config = json.load(load_f)
+print(config)
+
 from collections import defaultdict
 import pandas as pd
 from gensim.models import Word2Vec
@@ -6,7 +12,7 @@ from sklearn.decomposition import TruncatedSVD
 from scipy.spatial.distance import cosine
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
-import cut_sentence as cs
+import algorithm.summarization_extraction.cut_sentence as cs
 import networkx as nx
 import matplotlib.pyplot as plt
 
@@ -32,10 +38,11 @@ def get_tf(sentences):
         return tf,total_words
 
 # 加载词向量
-model = Word2Vec.load("wiki.model")
+model = Word2Vec.load(config['wordvec']+"/wiki.model")
 word_vectors = model.wv
 del model
 print('load word model finished')
+feature_size=32
 #思路:
 # 寻找跟整个文章相关性高的句子
 # 在拿到句子后，(寻找跟句子相关性高的词
@@ -59,7 +66,7 @@ class Summarization:
     def get_sentence_embedding_via_sif(self,sentences):
         alpha = 0.001
         # sentence_vectors = []
-        sentence_vec=np.zeros((len(sentences),128))
+        sentence_vec=np.zeros((len(sentences),feature_size))
         for idx,row in sentences.iterrows():
             # print('sentence: ',row['word'])
             for word in row['word']:
@@ -99,7 +106,7 @@ class Summarization:
                     # print('prob: ',prob[idx][t])
                     sentence_graph.add_edge(idx, t, weight=prob[idx][t])
         
-        scores = nx.pagerank(sentence_graph,tol=1)
+        scores = nx.pagerank(sentence_graph,tol=10)
 
         scores_list = []
         for idx in range(len(indexes)):

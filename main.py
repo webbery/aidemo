@@ -10,7 +10,7 @@ app = Flask(__name__)
 
 import sys 
 sys.path.append("./algorithm") 
-# from algorithm.opinion_extraction.interface import process_news
+from algorithm.opinion_extraction.interface import process_news
 from algorithm.summarization_extraction.interface import get_abstract
 
 status_code = {
@@ -39,7 +39,7 @@ def get_summarization():
 def get_subway():
     return render_template("summarization.html")
 
-@app.route('/apis/viewpoint',methods=['POST','GET'])
+@app.route('/apis/viewpoint',methods=['POST'])
 def viewpoint():
     news =request.get_data().decode('utf-8')
     # news = request.args.get('news')
@@ -51,7 +51,7 @@ def viewpoint():
     except:
         return jsonify({"result":status_code['fail']})
 
-@app.route('/apis/summatization',methods=['POST','GET'])
+@app.route('/apis/summarization',methods=['POST'])
 def summatization():
     news =request.get_data().decode('utf-8')
     try:
@@ -62,5 +62,4 @@ def summatization():
 
 app.after_request(after_request)
 app.run(host='0.0.0.0', port=config['port'], debug=False)
-# app.run(host='0.0.0.0', port=config['port'], debug=False, ssl_context=('server.crt','server.key'))
 
