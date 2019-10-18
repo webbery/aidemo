@@ -19,7 +19,6 @@
             <div class="col-md-4">
                 <div class="h3 page-header col-xs-4">提取摘要</div>
                 <textarea class=" form-control col-xs-4" type="text" id="input_text">
-俄罗斯对意大利应美国要求拘留俄罗斯公民感到愤怒。”美国司法部5日宣称，57岁的俄罗斯“间谍”科尔舒诺夫和59岁的意大利“间谍”比安齐因涉嫌窃取美国通用电气航空集团商业机密在意大利那不勒斯机场被拘留。对此，俄罗斯总统普京及俄外交部对意大利此举表示强烈不满，并警告称这种行为是不公平竞争的一个例子，将损害两国关系。
                             </textarea>
                 <button type="button" class="btn btn-success btn-block btn-md" onclick="extractSummarization()">
                     提取摘要
@@ -29,8 +28,11 @@
             <div class="col-md-4">
             </div>
         </div>
+        <div class="alert alert-danger fade in" id="tips">
+</div>
     </div>
     <script>
+        $('#tips').hide();
         function extractSummarization(){
             $("#summarization").html('');
             $.ajax({
@@ -40,7 +42,14 @@
                 dataType: 'json',
                 success: function (data){
                     console.info(data)
-                    if(data.result==-1) return;
+                    if(data.result==-1){
+                        if(data.message.indexOf('short')>0){
+                            $('#tips').show();
+                            $('#tips').text('文本太短了');
+                        }
+                        return;
+                    }
+                    $('#tips').hide();
                     $("#summarization").text(data.abstract);
                 },
                 error: function (msg) {

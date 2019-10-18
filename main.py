@@ -57,8 +57,9 @@ def summatization():
     try:
         abstract = get_abstract(news)
         return jsonify({"abstract":abstract,"result":status_code['success']})
-    except:
-        return jsonify({"result":status_code['fail']})
+    except Exception as e:
+        #msg = bytes(str(e), encoding = 'utf-8')
+        return jsonify({"result":status_code['fail'],"message":str(e)})
 
 app.after_request(after_request)
 app.run(host='0.0.0.0', port=config['port'], debug=False)

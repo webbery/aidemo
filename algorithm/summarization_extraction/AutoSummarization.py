@@ -7,7 +7,9 @@ print(config)
 
 from collections import defaultdict
 import pandas as pd
+import gensim
 from gensim.models import Word2Vec
+from gensim.models import Doc2Vec
 from sklearn.decomposition import TruncatedSVD
 from scipy.spatial.distance import cosine
 from sklearn.metrics.pairwise import cosine_similarity
@@ -52,12 +54,25 @@ class Summarization:
         
         # 切分句子和单词
         sentences,sentences_with_punctuation = cs.cut_and_segment([doc],doc_type='pandas',segment_type='array')
-
+        print(len(sentences))
+        if len(sentences)<20:
+            raise Exception('document to short')
         self.sentences = pd.DataFrame({'word':sentences,'sentence':sentences_with_punctuation})
         self.p_w,self.total_words_count =get_tf(self.sentences['word'])
         self.document = doc
         # 生成句向量
-        self.vectors = self.get_sentence_embedding_via_sif(self.sentences)
+        #self.vectors = self.get_sentence_embedding_via_sif(self.sentences)
+        #print(sentences[0])
+        alldocs=[]
+        count = 0
+        for line in sentences:
+            alldocs.append(gensim.models.doc2vec.TaggedDocument(line,[count]))
+            count +=1
+        sv = Doc2Vec(alldocs,vector_size=32)
+        sv.train(alldocs,total_examples=len(alldocs),epochs=100)
+        self.vectors = sv.docvecs
+#        for item in sv.docvecs:
+#            print('docvecs: ',item)
 
     def split_sentence(self,sentence):
         pass
@@ -83,12 +98,19 @@ class Summarization:
 
     def get_corrlations_with_document(self):
         #切分整个文本，变成词向量
-        content = cs.segment(self.document)
-        words = pd.DataFrame({'word':[content]})
-        embed = self.get_sentence_embedding_via_sif(words)
+        content = cs.segment(self.document,type='arr')
+        #words = pd.DataFrame({'word':[content]})
+        #embed = self.get_sentence_embedding_via_sif(words)
+        doc = Doc2Vec([gensim.models.doc2vec.TaggedDocument(content,[0])],vector_size=32)
+#        doc.train([content],total_examples=1,epochs=100)
         correlations=[]
-        for sentence in self.vectors:
-            correlations += [cosine(embed,sentence)]
+        try:
+            for sentence in self.vectors:
+                #print(sentence)
+                correlations += [cosine(doc.docvecs[0],sentence)]
+            #correlations += [cosine(embed,sentence)]
+        except:
+            print('except')
         self.sentences['cor']=correlations
         return correlations
 
