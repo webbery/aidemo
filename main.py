@@ -12,6 +12,7 @@ import sys
 sys.path.append("./algorithm") 
 from algorithm.opinion_extraction.interface import process_news
 from algorithm.summarization_extraction.interface import get_abstract
+from algorithm.subway import search
 
 status_code = {
     'success': 0,
@@ -60,6 +61,12 @@ def summatization():
     except Exception as e:
         #msg = bytes(str(e), encoding = 'utf-8')
         return jsonify({"result":status_code['fail'],"message":str(e)})
+
+@app.route('/apis/subway',methods=['POST'])
+def find_road():
+    query = request.get_data().decode('utf-8')
+    result = search(query.from,query.to,query.type)
+    return jsonify(result)
 
 app.after_request(after_request)
 app.run(host='0.0.0.0', port=config['port'], debug=False)
