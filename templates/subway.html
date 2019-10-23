@@ -51,7 +51,7 @@
             $.ajax({
                 type: 'POST',
                 url: 'http://59.111.94.24:8977/apis/subway',
-                data: {from:from,to:to,type:0},
+                data: {src:from,to:to,type:0},
                 dataType: 'json',
                 success: function (data){
                     console.info(data)

@@ -10,6 +10,7 @@ app = Flask(__name__)
 
 import sys 
 sys.path.append("./algorithm") 
+import urllib
 from algorithm.opinion_extraction.interface import process_news
 from algorithm.summarization_extraction.interface import get_abstract
 from algorithm.subway import search
@@ -38,7 +39,7 @@ def get_summarization():
 
 @app.route('/aidemo/subway',methods=['GET'])
 def get_subway():
-    return render_template("summarization.html")
+    return render_template("subway.html")
 
 @app.route('/apis/viewpoint',methods=['POST'])
 def viewpoint():
@@ -65,7 +66,9 @@ def summatization():
 @app.route('/apis/subway',methods=['POST'])
 def find_road():
     query = request.get_data().decode('utf-8')
-    result = search(query.from,query.to,query.type)
+    condition = urllib.parse.parse_qs(query)
+    print(condition)
+    result = search(condition['src'][0],condition['to'][0],condition['type'][0])
     return jsonify(result)
 
 app.after_request(after_request)

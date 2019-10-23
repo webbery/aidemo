@@ -136,17 +136,14 @@ def is_exist(station):
         return False
     return True
 
-def search(src,dst):
+def search(src,dst,t=0):
     if not is_exist(src) or not is_exist(dst):
-        return 
-    result = search_detail(src,dst,stations,station_count)
-    print('最少站点:',result)
-
-    result = search_detail(src,dst,stations,transfer_count)
-    print('最少换乘:',result)
-
-    result = search_detail(src,dst,stations,get_distance)
-    print('最短距离:',result)
+        return {'result':src+' or '+dst+' not exist'}
+    if t==1:
+        return search_detail(src,dst,stations,transfer_count)
+    if t==2:
+        return search_detail(src,dst,stations,get_distance)
+    return search_detail(src,dst,stations,station_count)
 
 # search('海淀五路居','平西路')
 
