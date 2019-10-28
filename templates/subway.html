@@ -4,10 +4,11 @@
 
 <head>
     <meta charset="utf-8" />
-    <link href="https://lib.sinaapp.com/js/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <!-- <link href="https://lib.sinaapp.com/js/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" type="text/css" /> -->
     <link rel="stylesheet" type="text/css" href="/stylesheets/paper-preview.css" />
+    <link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.css" rel="stylesheet">
     <script src="https://lib.sinaapp.com/js/jquery/3.1.0/jquery-3.1.0.min.js"></script>
-    <script src="https://libs.cdnjs.net/twitter-bootstrap/3.4.1/js/bootstrap.min.js" type="text/javascript"></script>
+    <script src="https://libs.cdnjs.net/twitter-bootstrap/3.3.7/js/bootstrap.min.js" type="text/javascript"></script>
 </head>
 
 <body>
@@ -25,21 +26,28 @@
                     <label for="exampleInputName2">终点站:</label>
                     <input type="text" class="form-control" id="endStation" placeholder="终点站">
                 </div>
-                <select>
-                    <option>最少换乘</option>
-                    <option>最少站点</option>
+                <select class="form-control" id="queryCondition"> 
+                    <option value="0">最少站点</option>
+                    <option value="1">最少换乘</option>
                 </select>
                 <button type="button" class="btn btn-success" onclick="search()">
                     查询
                 </button>
                 </form>
-                
+                <div id="queryResult">
+                </div>
             </div>
             <div class="col-md-4">
             </div>
         </div>
     </div>
     <script>
+        $('#queryCondition').change(function(){
+            let from = $('#startStation').val();
+            let to = $('#endStation').val();
+            if(from.length*to.length==0) return;
+            search();
+        });
 
         function isExist(station){
             if(station in stations) return true;
@@ -47,17 +55,36 @@
         }
         function search(){
             let from = $('#startStation').val();
+            if(from.length==0){
+                alert('起点站 不能为空')
+                return;
+            }
             let to = $('#endStation').val();
+            if(to.length==0){
+                alert('终点站 不能为空')
+                return;
+            }
+            let condition = $('#queryCondition').find('option:selected').attr('value');
+            console.info(condition)
             $.ajax({
                 type: 'POST',
                 url: 'http://59.111.94.24:8977/apis/subway',
-                data: {src:from,to:to,type:0},
+                data: {src:from,to:to,type:condition},
                 dataType: 'json',
                 success: function (data){
-                    console.info(data)
+                    if(data.result){
+                        alert(data.result);
+                        return;
+                    }
+                    let html = '';
+                    for(let idx=0;idx<data.path.length;++idx)
+                    {
+                        html += ('<p><span class="glyphicon glyphicon-record"></span> ' +data.path[idx]+'</p>');
+                    }
+                    $('#queryResult').html(html);
                 },
                 error: function (msg) {
-                    console.info(msg);                    
+                    alert(msg)
                 }
             })
         }

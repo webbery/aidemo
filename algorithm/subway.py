@@ -137,8 +137,10 @@ def is_exist(station):
     return True
 
 def search(src,dst,t=0):
-    if not is_exist(src) or not is_exist(dst):
-        return {'result':src+' or '+dst+' not exist'}
+    if not is_exist(src):
+        return {'result':src+'站不存在'}
+    if not is_exist(dst):
+        return {'result':dst+'站不存在'}
     if t==1:
         return search_detail(src,dst,stations,transfer_count)
     if t==2:
