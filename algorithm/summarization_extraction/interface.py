@@ -2,8 +2,8 @@ import pandas as pd
 import numpy as np
 import jieba
 import os
-from AutoSummarization import Summarization
-# from algorithm.summarization_extraction.AutoSummarization import Summarization
+# from AutoSummarization import Summarization
+from algorithm.summarization_extraction.AutoSummarization import Summarization
 import networkx as nx
 import matplotlib.pyplot as plt
 

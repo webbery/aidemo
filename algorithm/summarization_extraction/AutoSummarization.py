@@ -1,21 +1,13 @@
-import json
-
-# config = None
-# with open("./config.json",'r') as load_f:
-#     config = json.load(load_f)
-# print(config)
-
 from collections import defaultdict
 import pandas as pd
 import gensim
 from gensim.models import Word2Vec
-# from gensim.models import Doc2Vec
 from sklearn.decomposition import TruncatedSVD
 from scipy.spatial.distance import cosine
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
-import cut_sentence as cs
-# import algorithm.summarization_extraction.cut_sentence as cs
+# import cut_sentence as cs
+import algorithm.summarization_extraction.cut_sentence as cs
 import networkx as nx
 import matplotlib.pyplot as plt
 

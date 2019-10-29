@@ -47,13 +47,17 @@
                             $('#tips').show();
                             $('#tips').text('文本太短了');
                         }
+                        else{
+                            $('#tips').text(data.message);
+                            $('#tips').show();
+                        }
                         return;
                     }
                     $('#tips').hide();
                     $("#summarization").text(data.abstract);
                 },
                 error: function (msg) {
-
+                    console.info(msg)
                 }
             })
         }
