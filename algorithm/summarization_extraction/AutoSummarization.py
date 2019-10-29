@@ -1,20 +1,21 @@
 import json
 
-config = None
-with open("./config.json",'r') as load_f:
-    config = json.load(load_f)
-print(config)
+# config = None
+# with open("./config.json",'r') as load_f:
+#     config = json.load(load_f)
+# print(config)
 
 from collections import defaultdict
 import pandas as pd
 import gensim
 from gensim.models import Word2Vec
-from gensim.models import Doc2Vec
+# from gensim.models import Doc2Vec
 from sklearn.decomposition import TruncatedSVD
 from scipy.spatial.distance import cosine
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
-import algorithm.summarization_extraction.cut_sentence as cs
+import cut_sentence as cs
+# import algorithm.summarization_extraction.cut_sentence as cs
 import networkx as nx
 import matplotlib.pyplot as plt
 
@@ -40,10 +41,13 @@ def get_tf(sentences):
         return tf,total_words
 
 # 加载词向量
-model = Word2Vec.load(config['wordvec']+"/wiki.model")
-word_vectors = model.wv
-del model
-print('load word model finished')
+# model = Word2Vec.load(config['wordvec']+"/wiki.model")
+# word_vectors = model.wv
+# del model
+# print('load word model finished')
+from bert_serving.client import BertClient
+bert = BertClient()
+
 feature_size=32
 #思路:
 # 寻找跟整个文章相关性高的句子
@@ -51,78 +55,64 @@ feature_size=32
 # 将词拼成句子，)然后将句子拼成摘要
 class Summarization:
     def __init__(self,doc):
-        
         # 切分句子和单词
         sentences,sentences_with_punctuation = cs.cut_and_segment([doc],doc_type='pandas',segment_type='array')
-        print(len(sentences))
-        if len(sentences)<20:
+        # print(len(sentences))
+        if len(sentences)<5:
             raise Exception('document to short')
-        self.sentences = pd.DataFrame({'word':sentences,'sentence':sentences_with_punctuation})
+        new_sentences = []
+        new_puntuation = []
+        # 剔除短句子（在新闻中短句子意义不大）
+        for idx in range(len(sentences)):
+            if len(sentences[idx])<=4: continue
+            new_sentences.append(sentences[idx])
+            new_puntuation.append(sentences_with_punctuation[idx])
+        self.sentences = pd.DataFrame({'word':new_sentences,'sentence':new_puntuation})
         self.p_w,self.total_words_count =get_tf(self.sentences['word'])
         self.document = doc
         # 生成句向量
-        #self.vectors = self.get_sentence_embedding_via_sif(self.sentences)
-        #print(sentences[0])
         alldocs=[]
         count = 0
-        for line in sentences:
-            alldocs.append(gensim.models.doc2vec.TaggedDocument(line,[count]))
+        for line in new_sentences:
+            # print(line)
+            alldocs.append(line)
             count +=1
-        sv = Doc2Vec(alldocs,vector_size=32)
-        sv.train(alldocs,total_examples=len(alldocs),epochs=100)
-        self.vectors = sv.docvecs
-#        for item in sv.docvecs:
-#            print('docvecs: ',item)
+        self.vectors = bert.encode(alldocs,is_tokenized=True)
+        # print(self.vectors.shape)
 
     def split_sentence(self,sentence):
         pass
 
-    # 尝试采用SIF sentence embedding
-    def get_sentence_embedding_via_sif(self,sentences):
-        alpha = 0.001
-        # sentence_vectors = []
-        sentence_vec=np.zeros((len(sentences),feature_size))
-        for idx,row in sentences.iterrows():
-            # print('sentence: ',row['word'])
-            for word in row['word']:
-                if word in word_vectors.vocab:
-                    sentence_vec[idx] += word_vectors[word]*(alpha/(alpha+self.p_w[word]/self.total_words_count))
-
-        svd = TruncatedSVD(n_components=1,n_iter=5,random_state=0)
-        svd.fit(sentence_vec)
-        pc = svd.components_
-        #计算每个句子的句向量
-        embeds = sentence_vec-sentence_vec.dot(pc.transpose()) * pc
-        # print(embed.shape)
-        return embeds
-
     def get_corrlations_with_document(self):
         #切分整个文本，变成词向量
         content = cs.segment(self.document,type='arr')
-        #words = pd.DataFrame({'word':[content]})
-        #embed = self.get_sentence_embedding_via_sif(words)
-        doc = Doc2Vec([gensim.models.doc2vec.TaggedDocument(content,[0])],vector_size=32)
+        # print(len(content))
+        doc = bert.encode([content],is_tokenized=True).flatten()
 #        doc.train([content],total_examples=1,epochs=100)
         correlations=[]
         try:
             for sentence in self.vectors:
-                #print(sentence)
-                correlations += [cosine(doc.docvecs[0],sentence)]
+                correlations += [cosine(doc,sentence.flatten())]
             #correlations += [cosine(embed,sentence)]
         except:
             print('except')
         self.sentences['cor']=correlations
+        # print(correlations)
         return correlations
 
+    def get_summarize_of_sentence(self,sentence):
+        pass
+
     def get_summarization(self):
-        #取跟整个文本相关性大于1的句子
-        self.get_corrlations_with_document()
-        indexes = self.sentences['cor']>1
+        #取跟整个文本相关性高的句子
+        cor = self.get_corrlations_with_document()
+        cor.sort(reverse=True)
+        # print(cor,cor[len(cor)//2])
+        indexes = self.sentences['cor']>=cor[len(cor)//2+1]
         #构造句子图
         prob = likely_probability(self.vectors)
         sentence_graph = nx.Graph()
         for idx, item in enumerate(indexes):
-            # print(idx,item)
             for t in range(len(indexes)):
                 if item==True and indexes[t]==True and t!=idx:
                     # print('prob: ',prob[idx][t])
@@ -141,10 +131,9 @@ class Summarization:
         self.sentences['score']=scores_list
         sentences = self.sentences.dropna(axis=0,how='any')
         tops = sentences.sort_values(by=['score'],ascending=False)[:50]
-        # print('================')
+        # 得到句子级摘要
         sentences = tops.sort_index()
-        # plt.plot(sentences['score'])
-        # plt.show()
+        # 尝试对句子提取主要信息
         # print(sentences)
         # 句子组装成摘要
         abstract=''
