@@ -41,6 +41,14 @@ def get_summarization():
 def get_subway():
     return render_template("subway.html")
 
+@app.route('/aidemo/comments_classify',methods=['GET'])
+def get_classify():
+    return render_template("comments_classify.html")
+
+@app.route('/aidemo/history',methods=['GET'])
+def get_history():
+    return render_template("arguments_history.html")
+
 @app.route('/apis/viewpoint',methods=['POST'])
 def viewpoint():
     news =request.get_data().decode('utf-8')

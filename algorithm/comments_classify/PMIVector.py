@@ -4,9 +4,10 @@ from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 from sklearn.preprocessing import normalize
 from scipy.sparse import linalg
+import pandas as pd
 
 class PMIVector:
-    def __init__(self,sentences,back_window=2,front_window=2):
+    def __init__(self,sentences=None,back_window=2,front_window=2):
         self.wv = None
         self.nwv = None
         self.tok2indx = dict()
@@ -24,8 +25,8 @@ class PMIVector:
         self._generate_pmi_()
 
         uu, ss, vv = linalg.svds(self.sppmi_mat, embedding_size)
-        unorm = uu / np.sqrt(np.sum(uu*uu, axis=1, keepdims=True))
-        vnorm = vv / np.sqrt(np.sum(vv*vv, axis=0, keepdims=True))
+        # unorm = uu / np.sqrt(np.sum(uu*uu, axis=1, keepdims=True))
+        # vnorm = vv / np.sqrt(np.sum(vv*vv, axis=0, keepdims=True))
         #word_vecs = unorm
         #word_vecs = vnorm.T
         self.wv = uu + vv.T
@@ -35,15 +36,17 @@ class PMIVector:
         for ii, headline in enumerate(self.sentences):
             if ii % 500000 == 0:
                 print(f'finished {ii/len(self.sentences):.2%} of lines')
-            for token in headline.split():
-                unigram_counts[token] += 1
+            line = headline
+            if type(headline)==str: line = headline.split()
+            for token in line:
+                self.unigram_counts[token] += 1
                 if token not in self.tok2indx:
                     self.tok2indx[token] = len(self.tok2indx)
         self.indx2tok = {indx:tok for tok,indx in self.tok2indx.items()}
 
     def _skipgram_(self):
         for iline,line in enumerate(self.sentences):
-            sentence = line.split()
+            sentence = (line.split() if type(line)==str else line) 
             for iword,word in enumerate(sentence):
                 ifw = max(0,iword-self.back_window)
                 ibw = min(len(sentence),iword+self.front_window)
@@ -79,8 +82,8 @@ class PMIVector:
         row_indxs = []
         col_indxs = []
 
-        pmi_dat_values = []
-        ppmi_dat_values = []
+        # pmi_dat_values = []
+        # ppmi_dat_values = []
         spmi_dat_values = []
         sppmi_dat_values = []
 
@@ -109,16 +112,16 @@ class PMIVector:
             nca = sum_over_words_alpha[tok2_indx]
             Pca = nca / nca_denom
             
-            pmi = np.log2(Pwc/(Pw*Pc))
-            ppmi = max(pmi, 0)
+            # pmi = np.log2(Pwc/(Pw*Pc))
+            # ppmi = max(pmi, 0)
             
             spmi = np.log2(Pwc/(Pw*Pca))
             sppmi = max(spmi, 0)
             
             row_indxs.append(tok1_indx)
             col_indxs.append(tok2_indx)
-            pmi_dat_values.append(pmi)
-            ppmi_dat_values.append(ppmi)
+            # pmi_dat_values.append(pmi)
+            # ppmi_dat_values.append(ppmi)
             spmi_dat_values.append(spmi)
             sppmi_dat_values.append(sppmi)
                 
@@ -129,10 +132,21 @@ class PMIVector:
 
     def get_vector(self,word):
         indx = self.tok2indx[word]
-        return self.nwv.getrow(indx)
+        print(self.nwv.shape)
+        return self.nwv[indx]
 
     def save(self,filename):
-        pass
+        np.save(filename+'.nwv',self.nwv)
+        np.save(filename+'.wv',self.wv)
+        frame = pd.DataFrame({'word':[self.indx2tok[i] for i in range(len(self.indx2tok))]})
+        frame.to_csv(filename+'.csv')
 
     def load(self,filename):
-        pass
+        frame = pd.read_csv(filename+'.csv')
+        self.nwv = np.load(filename+'.nwv.npy')
+        self.wv = np.load(filename+'.wv.npy')
+        self.indx2tok = dict()
+        self.tok2indx = dict()
+        for idx in range(len(self.wv)):
+            self.tok2indx[frame['word'][idx]] = idx
+            self.indx2tok[idx] = frame['word'][idx]
