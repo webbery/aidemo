@@ -13,192 +13,223 @@
 
 <body>
     <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-8">
-
-                <button type="button" class="btn btn-success">
-                    Button
-                </button>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-4">
+                </div>
+                <div class="col-md-4">
+                    <textarea class=" form-control col-xs-4" type="text" id="input_text"></textarea>
+                    <button type="button" class="btn btn-success" onclick="tryClassify()">
+                        分类
+                    </button>
+                </div>
+                <div class="col-md-4">
+                </div>
             </div>
-            <div class="col-md-4">
+            <div class="row">
+                <div class="col-md-2">
+                    <table class="table table-bordered table-striped">
+                        <tbody>
+                            <tr class="table-danger">
+                                <td>
+                                    交通是否便利
+                                </td>
+                                <td id="location_traffic_convenience">
 
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>
-                                评价种类
-                            </th>
-                            <th>
-                                感情倾向
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr class="table-danger">
-                            <td>
-                                交通是否便利
-                            </td>
-                            <td>
-                                TB - Monthly
-                            </td>
-                        </tr>
-                        <tr class="table-danger">
-                            <td>
-                                距离商圈远近
-                            </td>
-                            <td>
-                                TB - Monthly
-                            </td>
-                        </tr>
-                        <tr class="table-danger">
-                            <td>
-                                是否容易寻找
-                            </td>
-                            <td>
-                                TB - Monthly
-                            </td>
-                        </tr>
-                        <tr class="table-success">
-                            <td>
-                                排队等候时间
-                            </td>
-                            <td>
-                                TB - Monthly
-                            </td>
-                        </tr>
-                        <tr class="table-success">
-                            <td>
-                                服务人员态度
-                            </td>
-                            <td>
-                                TB - Monthly
-                            </td>
-                        </tr>
-                        <tr class="table-success">
-                            <td>
-                                是否容易停车
-                            </td>
-                            <td>
-                                TB - Monthly
-                            </td>
-                        </tr>
-                        <tr class="table-success">
-                            <td>
-                                点菜/上菜速度
-                            </td>
-                            <td>
-                                TB - Monthly
-                            </td>
-                        </tr>
-                        <tr class="table-danger">
-                            <td>
-                                价格水平
-                            </td>
-                            <td>
-                                TB - Monthly
-                            </td>
-                        </tr>
-                        <tr class="table-danger">
-                            <td>
-                                性价比
-                            </td>
-                            <td>
-                                TB - Monthly
-                            </td>
-                        </tr>
-                        <tr class="table-danger">
-                            <td>
-                                折扣力度
-                            </td>
-                            <td>
-                                TB - Monthly
-                            </td>
-                        </tr>
+                                </td>
+                            </tr>
+                            <tr class="table-danger">
+                                <td>
+                                    距离商圈远近
+                                </td>
+                                <td id="location_distance_from_business_district">
 
-                        <tr class="table-success">
-                            <td>
-                                装修情况
-                            </td>
-                            <td>
-                                TB - Monthly
-                            </td>
-                        </tr>
-                        <tr class="table-success">
-                            <td>
-                                嘈杂情况
-                            </td>
-                            <td>
-                                TB - Monthly
-                            </td>
-                        </tr>
-                        <tr class="table-success">
-                            <td>
-                                就餐空间
-                            </td>
-                            <td>
-                                TB - Monthly
-                            </td>
-                        </tr>
-                        <tr class="table-success">
-                            <td>
-                                卫生情况
-                            </td>
-                            <td>
-                                TB - Monthly
-                            </td>
-                        </tr>
-                        <tr class="table-danger">
-                            <td>
-                                分量
-                            </td>
-                            <td>
-                                TB - Monthly
-                            </td>
-                        </tr>
-                        <tr class="table-danger">
-                            <td>
-                                口感
-                            </td>
-                            <td>
-                                TB - Monthly
-                            </td>
-                        </tr>
-                        <tr class="table-danger">
-                            <td>
-                                外观
-                            </td>
-                            <td>
-                                TB - Monthly
-                            </td>
-                        </tr>
-                        <tr class="table-danger">
-                            <td>
-                                推荐程度
-                            </td>
-                            <td>
-                                TB - Monthly
-                            </td>
-                        </tr>
-                        <tr class="table-success">
-                            <td>
-                                本次消费感受
-                            </td>
-                            <td>
-                                TB - Monthly
-                            </td>
-                        </tr>
-                        <tr class="table-success">
-                            <td>
-                                再次消费的意愿
-                            </td>
-                            <td>
-                                TB - Monthly
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                                </td>
+                            </tr>
+                            <tr class="table-danger">
+                                <td>
+                                    是否容易寻找
+                                </td>
+                                <td id="location_easy_to_find">
+
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-2">
+                    <table class="table table-bordered table-striped">
+                        <tbody>
+                            <tr class="table-success">
+                                <td>
+                                    排队等候时间
+                                </td>
+                                <td id="service_wait_time">
+
+                                </td>
+                            </tr>
+                            <tr class="table-success">
+                                <td>
+                                    服务人员态度
+                                </td>
+                                <td id="service_waiters_attitude">
+
+                                </td>
+                            </tr>
+                            <tr class="table-success">
+                                <td>
+                                    是否容易停车
+                                </td>
+                                <td id="service_parking_convenience">
+
+                                </td>
+                            </tr>
+                            <tr class="table-success">
+                                <td>
+                                    点菜/上菜速度
+                                </td>
+                                <td id="service_serving_speed">
+
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-2">
+                    <table class="table table-bordered table-striped">
+                        <tbody>
+                            <tr class="table-danger">
+                                <td>
+                                    价格水平
+                                </td>
+                                <td id="price_level">
+
+                                </td>
+                            </tr>
+                            <tr class="table-danger">
+                                <td>
+                                    性价比
+                                </td>
+                                <td id="price_cost_effective">
+
+                                </td>
+                            </tr>
+                            <tr class="table-danger">
+                                <td>
+                                    折扣力度
+                                </td>
+                                <td id="price_discount">
+
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-2">
+                    <table class="table table-bordered table-striped">
+                        <tbody>
+                            <tr class="table-success">
+                                <td>
+                                    装修情况
+                                </td>
+                                <td id="environment_decoration">
+
+                                </td>
+                            </tr>
+                            <tr class="table-success">
+                                <td>
+                                    嘈杂情况
+                                </td>
+                                <td id="environment_noise">
+
+                                </td>
+                            </tr>
+                            <tr class="table-success">
+                                <td>
+                                    就餐空间
+                                </td>
+                                <td id="environment_space">
+
+                                </td>
+                            </tr>
+                            <tr class="table-success">
+                                <td>
+                                    卫生情况
+                                </td>
+                                <td id="environment_cleaness">
+
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-2">
+                    <table class="table table-bordered table-striped">
+                        <tbody>
+                            <tr class="table-danger">
+                                <td>
+                                    分量
+                                </td>
+                                <td id="dish_portion">
+
+                                </td>
+                            </tr>
+                            <tr class="table-danger">
+                                <td>
+                                    口感
+                                </td>
+                                <td id="dish_taste">
+
+                                </td>
+                            </tr>
+                            <tr class="table-danger">
+                                <td>
+                                    外观
+                                </td>
+                                <td id="dish_look">
+
+                                </td>
+                            </tr>
+                            <tr class="table-danger">
+                                <td>
+                                    推荐程度
+                                </td>
+                                <td id="dish_recommendation">
+
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-2">
+                    <table class="table table-bordered table-striped">
+                        <tbody>
+                            <tr class="table-success">
+                                <td>
+                                    本次消费感受
+                                </td>
+                                <td id="others_overall_experience">
+
+                                </td>
+                            </tr>
+                            <tr class="table-success">
+                                <td>
+                                    再次消费的意愿
+                                </td>
+                                <td id="others_willing_to_consume_again">
+
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-
         </div>
     </div>
+    </div>
+    <script>
+        function tryClassify(){
+            
+        }
+    </script>
 </body>
