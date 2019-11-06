@@ -80,7 +80,7 @@ def find_road():
     result = search(condition['src'][0],condition['to'][0],condition['type'][0])
     return jsonify(result)
 
-@app.route('/api/classify',methods=['POST'])
+@app.route('/apis/classify',methods=['POST'])
 def classify_comment():
     comment = request.get_data().decode('utf-8')
     try:

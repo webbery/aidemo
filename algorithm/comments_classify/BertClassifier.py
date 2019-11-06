@@ -30,6 +30,7 @@ class BertClassifier(BertPreTrainedModel):
         return loss, cls_output
 
 device = torch.device('cpu')
-model_path = 'my_train'
+model_path = './model'
 tokenizer = BertTokenizer.from_pretrained(model_path)
 model = BertClassifier.from_pretrained(model_path).to(device)
+model.eval()

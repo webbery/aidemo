@@ -18,7 +18,9 @@
                 <div class="col-md-4">
                 </div>
                 <div class="col-md-4">
-                    <textarea class=" form-control col-xs-4" type="text" id="input_text"></textarea>
+                    <textarea class=" form-control col-xs-4" type="text" id="input_text">
+地理位置好，交通方便，就在124车站对面交通方便，很好，我晚上7点多去买的了，已经没有什么面包了，想吃金元宝蛋糕也没有了，那个蛋糕很好卖的，好吃，整体还算不错吧17元抵20元的券，还不错，不过我要说一件事，就是，那个红豆包明明是3元，那个服务元说什么3.5喔，这不是骗人吗，我打算是买够20元的东西，回到家一看单，总价是19.5，明明可以买20元的东西，怎么这么不老实，要给个零分我以后不去这里买了.
+                    </textarea>
                     <button type="button" class="btn btn-success" onclick="tryClassify()">
                         分类
                     </button>
@@ -228,8 +230,80 @@
     </div>
     </div>
     <script>
+        function getDescribe(key,value){
+            const desc={
+                "location_traffic_convenience":{3:"非常便利",2:"一般,还行",1:"不方便",0:"未置可否"},
+                "location_distance_from_business_district":{3:"挺近",2:"一般,还行",1:"远",0:"未置可否"},
+                "location_easy_to_find":{3:"很好找",2:"一般,还行",1:"不好找",0:"未置可否"},
+                "service_wait_time":{3:"很快",2:"一般,还行",1:"很慢",0:"未置可否"},
+                "service_waiters_attitude":{3:"好评",2:"一般,还行",1:"差评",0:"未置可否"},
+                "service_parking_convenience":{3:"停车方便",2:"一般,还行",1:"不好停车",0:"未置可否"},
+                "service_serving_speed":{3:"好评",2:"一般,还行",1:"差评",0:"未置可否"},
+                "price_level":{3:"便宜",2:"一般,还行",1:"贵",0:"未置可否"},
+                "price_cost_effective":{3:"性价比高",2:"一般,还行",1:"性价比低",0:"未置可否"},
+                "price_discount":{3:"折扣很大",2:"一般",1:"折扣低",0:"未置可否"},
+                "environment_decoration":{3:"很棒",2:"一般,还行",1:"不咋地",0:"未置可否"},
+                "environment_noise":{3:"很安静",2:"一般,还行",1:"特别吵",0:"未置可否"},
+                "environment_space":{3:"很棒",2:"一般",1:"不咋地",0:"未置可否"},
+                "environment_cleaness":{3:"很棒，很干净",2:"一般,还行",1:"不咋地",0:"未置可否"},
+                "dish_portion":{3:"很足",2:"一般,还行",1:"不咋地",0:"未置可否"},
+                "dish_taste":{3:"口感很好",2:"一般,还行",1:"口感不行",0:"未置可否"},
+                "dish_look":{3:"很漂亮",2:"一般,还行",1:"无法形容的难看",0:"未置可否"},
+                "dish_recommendation":{3:"强烈推荐",2:"一般,还行",1:"不推荐",0:"未置可否"},
+                "others_overall_experience":{3:"好评",2:"一般",1:"差评",0:"未置可否"},
+                "others_willing_to_consume_again":{3:"希望再来",2:"一般吧",1:"不想再来",0:"未置可否"},
+            };
+            return desc[key][value];
+        }
+
+        function updateRate(rates){
+            const keys = {
+                0:"location_traffic_convenience",
+                1:"location_distance_from_business_district",
+                2:"location_easy_to_find",
+                3:"service_wait_time",
+                4:"service_waiters_attitude",
+                5:"service_parking_convenience",
+                6:"service_serving_speed",
+                7:"price_level",
+                8:"price_cost_effective",
+                9:"price_discount",
+                10:"environment_decoration",
+                11:"environment_noise",
+                12:"environment_space",
+                13:"environment_cleaness",
+                14:"dish_portion",
+                15:"dish_taste",
+                16:"dish_look",
+                17:"dish_recommendation",
+                18:"others_overall_experience",
+                19:"others_willing_to_consume_again",
+            };
+            for(let idx=0;idx<rates.length;++idx){
+                const desc = getDescribe(keys[idx],rates[idx])
+                $('#'+keys[idx]).html(desc);
+            }
+        }
+
         function tryClassify(){
-            
+            const comment = $("#input_text").val();
+            if(comment.trim()==""){
+                alert("空文本");
+                return;
+            }
+            $.ajax({
+                type: 'POST',
+                url: '/apis/classify',
+                data: comment,
+                dataType: 'json',
+                success: function (data){
+                    if(data.result==-1) return;
+                    updateRate(data.classes);
+                },
+                error: function (msg) {
+                    console.info(msg)
+                }
+            });
         }
     </script>
 </body>
