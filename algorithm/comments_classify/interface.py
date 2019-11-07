@@ -1,5 +1,5 @@
 import torch
-from algorithm.comment_classify.BertClassifier import model,tokenizer,features_size
+from algorithm.comments_classify.BertClassifier import model,tokenizer,features_size
 import numpy as np
 
 def classify_comment(comment):

@@ -14,7 +14,7 @@ import urllib
 from algorithm.opinion_extraction.interface import process_news
 from algorithm.summarization_extraction.interface import get_abstract
 from algorithm.subway import search
-from algorithm.classify_comment import classify_comment
+from algorithm.comments_classify.interface import classify_comment
 
 status_code = {
     'success': 0,
@@ -81,11 +81,11 @@ def find_road():
     return jsonify(result)
 
 @app.route('/apis/classify',methods=['POST'])
-def classify_comment():
+def on_classify_comment():
     comment = request.get_data().decode('utf-8')
     try:
         result = classify_comment(comment)
-        return jsonify({"classes":result,"result":status_code['success']})
+        return jsonify({"classes":result.tolist(),"result":status_code['success']})
     except Exception as e:
         return jsonify({"result":status_code['fail'],"message":str(e)})
 

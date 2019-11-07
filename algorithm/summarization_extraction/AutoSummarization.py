@@ -39,6 +39,7 @@ def get_tf(sentences):
 # print('load word model finished')
 from bert_serving.client import BertClient
 bert = BertClient()
+print('BERT service connected')
 
 feature_size=32
 #思路:
