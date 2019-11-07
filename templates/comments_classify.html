@@ -297,6 +297,7 @@
                 data: comment,
                 dataType: 'json',
                 success: function (data){
+                    console.info(data)
                     if(data.result==-1) return;
                     updateRate(data.classes);
                 },

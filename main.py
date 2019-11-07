@@ -14,7 +14,7 @@ import urllib
 from algorithm.opinion_extraction.interface import process_news
 from algorithm.summarization_extraction.interface import get_abstract
 from algorithm.subway import search
-# from algorithm.classify_comment import classify_comment
+from algorithm.classify_comment import classify_comment
 
 status_code = {
     'success': 0,
