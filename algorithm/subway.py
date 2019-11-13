@@ -118,7 +118,7 @@ class TransferNum:
 
     def __gt__(self, value):
         if self.transfer_count>value.transfer_count: return True
-        if self.station_count>value.station_count: return True
+        #if self.station_count>value.station_count: return True
         return False
 
 def station_count(obj):

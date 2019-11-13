@@ -76,8 +76,7 @@ def summatization():
 def find_road():
     query = request.get_data().decode('utf-8')
     condition = urllib.parse.parse_qs(query)
-    print(condition)
-    result = search(condition['src'][0],condition['to'][0],condition['type'][0])
+    result = search(condition['src'][0],condition['to'][0],int(condition['type'][0]))
     return jsonify(result)
 
 @app.route('/apis/classify',methods=['POST'])
