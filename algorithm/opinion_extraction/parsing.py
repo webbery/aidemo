@@ -48,9 +48,16 @@ say_words = [':','诊断', '交代', '说', '说道', '指出','报道','报道�
 class Sentence:
     def __init__(self,sentence):
         self.words = segmentor.segment(sentence)
+	#print(self.words)
         self.postags = postagger.postag(self.words) #词性标注
         self.netags = recognizer.recognize(self.words, self.postags) #命名实体识别
         self.arcs = parser.parse(self.words, self.postags)  # 句法分析
+        pos = 0
+        self.str_postags=[]
+        while pos<len(self.words):
+                self.str_postags.append((self.words[pos],self.postags[pos]))
+#print(self.words[pos],self.postags[pos],self.netags[pos])
+                pos += 1
 
     #命名实体识别
     def get_name_entity(self):
@@ -117,5 +124,5 @@ class Sentence:
                 if saying=='':
                     saying = self.get_saying(v.head)
                 continue
-        return (names,saying)
+        return (names,saying,self.str_postags)
 

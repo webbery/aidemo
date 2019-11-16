@@ -1,4 +1,5 @@
 from algorithm.opinion_extraction.parsing import Sentence
+#from parsing import Sentence
 import re
 
 text = """
@@ -17,4 +18,4 @@ def process_news(news):
         results.append(result)
     return results
 
-# process_news(text)
+print(process_news(text))

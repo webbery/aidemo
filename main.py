@@ -57,7 +57,7 @@ def viewpoint():
     try:
         result = process_news(news)
         return jsonify({"viewpoint":[
-            {"speaker": item[0],"content":item[1]} for item in result
+            {"speaker": item[0],"content":item[1],"postags":item[2]} for item in result
         ],"result":status_code['success']})
     except:
         return jsonify({"result":status_code['fail']})
