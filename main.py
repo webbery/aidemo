@@ -54,6 +54,7 @@ def get_history():
 def viewpoint():
     news =request.get_data().decode('utf-8')
     # news = request.args.get('news')
+    print('/viewpoint',news)
     try:
         result = process_news(news)
         return jsonify({"viewpoint":[
@@ -82,6 +83,7 @@ def find_road():
 @app.route('/apis/classify',methods=['POST'])
 def on_classify_comment():
     comment = request.get_data().decode('utf-8')
+    print('/classify',comment)
     try:
         result = classify_comment(comment)
         return jsonify({"classes":result.tolist(),"result":status_code['success']})
