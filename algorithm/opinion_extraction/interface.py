@@ -16,6 +16,10 @@ def process_news(news):
         result = sent.parse()
         if result[0]==None: continue
         results.append(result)
+    if len(sentences)==0:
+        sent = Sentence(news)
+        result = sent.parse()
+        results.append(result)
     return results
 
-print(process_news(text))
+#print(process_news(text))

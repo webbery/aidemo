@@ -45,7 +45,8 @@
                                 </th>
                             </tr>
                         </thead>
-                        <tbody id="entity_recognize"><tr><td><span class="label label-default">俄罗斯</span> <span class="label label-default">俄罗斯</span></td></tr></tbody>
+<span class='label label-success'>地名</span> <span class='label label-primary'>人物</span> <span class='label label-warning'>组织机构</span>
+                        <tbody id="entity_recognize"></tbody>
                     </table>
             </div>
             <div class="col-md-4">
@@ -61,33 +62,35 @@
                 data: $("#input_text").val(),
                 dataType: 'json',
                 success: function (data) {
-                    console.info(data)
+ //                   console.info(data)
                     let html = "";
                     let entitis = "<tr><td>";
                     for (let idx = 0; idx < data.viewpoint.length; ++idx) {
                         const frag = "<tr><td>" + data.viewpoint[idx].speaker + "</td><td>" + data.viewpoint[idx].content + "</td></tr>";
                         //使用标签高亮实体
-                        switch (data.viewpoint[idx].postags[1]) {
+                        for(let pos=0;pos<data.viewpoint[idx].postags.length;++pos){
+                            switch (data.viewpoint[idx].postags[pos][1]) {
                             case 'nl'://地名
-                                entitis += "<span class='label label-success'>"+data.viewpoint[idx].postag[0]+"</span> ";
+                                entitis += "<span class='label label-success'>"+data.viewpoint[idx].postags[pos][0]+"</span> ";
                                 break;
                             case 'nh'://人名
-                                entitis += "<span class='label label-primary'>"+data.viewpoint[idx].postag[0]+"</span> ";
+                                entitis += "<span class='label label-primary'>"+data.viewpoint[idx].postags[pos][0]+"</span> ";
                                 break;
                             case 'ns'://组织机构
-                                entitis += "<span class='label label-warning'>"+data.viewpoint[idx].postag[0]+"</span> ";
+                                entitis += "<span class='label label-warning'>"+data.viewpoint[idx].postags[pos][0]+"</span> ";
                                 break;
                             default:
-                                entitis += data.viewpoint[idx].postag[0];
+                                entitis += data.viewpoint[idx].postags[pos][0];
                                 break;
                         }
-                        html += frag;
+                        }
+                        if(!data.viewpoint[idx]) html += frag;
                     }
                     entitis += "</td></tr>";
 
                     $("#summaries").html(html);
-                    console.info(entitis)
-                    $("entity_recognize").html(entitis);
+//                    console.info(entitis)
+                    $("#entity_recognize").html(entitis);
                 },
                 error: function (msg) {
                     console.info(msg);
