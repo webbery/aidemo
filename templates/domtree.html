@@ -25,6 +25,7 @@
 </head>
 
 <body>
+    <div id="viewer"></div>
     <script>
 
         var width = 1800,
@@ -35,7 +36,7 @@
             .size([width, height])
             .on("tick", tick);
 
-        var svg = d3.select("body").append("svg")
+        var svg = d3.select("#viewer").append("svg")
             .attr("width", width)
             .attr("height", height);
 
@@ -88,6 +89,9 @@
                 .style("fill", color)
                 .on("click", click)
                 .call(force.drag);
+            //disply title
+            node.enter().append("title")
+                .text(function(d) { return d.name});
         }
 
         function tick() {
