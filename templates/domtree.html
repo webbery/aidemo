@@ -25,6 +25,32 @@
 </head>
 
 <body>
+        <label class="ui_button ui_button_primary" for="uploadHTMLFile">选择</label>
+        <form><input type="file" id="uploadHTMLFile" style="position:absolute;clip:rect(0 0 0 0);"></form>
+        <script>
+        document.getElementById('uploadHTMLFile').addEventListener('change', function() {        
+            var file;
+            for(var x = 0, xlen = this.files.length; x < xlen; x++) {
+                file = this.files[x];
+                console.log(file.type);
+                if(file.type.indexOf('html') != -1) { // 非常简单的交验，判断文件是否是图片
+                    var reader = new FileReader();//文件预览对象
+                    reader.readAsText(file);//设置要预览的文件
+                    reader.onload = function(e) {//监听文件加载完成事件
+                        data = e.target.result; //把预览图片的src设置为e.target.result属性。返回预览文件的二进制内存数据
+                        console.info(data)
+                        d3.json("/apis/tools/domtree")
+                            .header("Content-Type", "text/html")
+                            .post(data, function (error, json) {
+                                if (error) throw error;
+                                root = json.tree;
+                                update();
+                            });
+                    };
+                }            
+            }
+        });
+    </script>
     <div id="viewer"></div>
     <script>
 
@@ -43,11 +69,7 @@
         var link = svg.selectAll(".link"),
             node = svg.selectAll(".node");
 
-        d3.json("/apis/tools/domtree", function (error, json) {
-            if (error) throw error;
-            root = json.tree;
-            update();
-        });
+        
 
         function update() {
             var nodes = flatten(root),
