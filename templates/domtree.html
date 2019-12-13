@@ -8,15 +8,16 @@
     <!-- <link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" type="text/css" /> -->
     <!-- <script src="https://lib.sinaapp.com/js/jquery/3.1.0/jquery-3.1.0.min.js"></script> -->
     <!-- <script src="https://libs.cdnjs.net/twitter-bootstrap/3.4.1/js/bootstrap.min.js" type="text/javascript"></script> -->
-    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <!-- <script src="http://d3js.org/d3.v3.min.js"></script> -->
+    <script src="https://d3js.org/d3.v4.min.js"></script>
     <style>
-        .node {
+        .nodes circle {
             cursor: pointer;
             stroke: #3182bd;
             stroke-width: 1.5px;
         }
 
-        .link {
+        .links line {
             fill: none;
             stroke: #9ecae1;
             stroke-width: 1.5px;
@@ -25,166 +26,158 @@
 </head>
 
 <body>
-        <label class="ui_button ui_button_primary" for="uploadHTMLFile">选择</label>
-        <form><input type="file" id="uploadHTMLFile" style="position:absolute;clip:rect(0 0 0 0);"></form>
-        <script>
-        document.getElementById('uploadHTMLFile').addEventListener('change', function() {        
+    <label class="ui_button ui_button_primary" for="uploadHTMLFile">选择</label>
+    <form><input type="file" id="uploadHTMLFile" style="position:absolute;clip:rect(0 0 0 0);"></form>
+    <svg width="960" height="600"></svg>
+    <div id="div_template"></div>
+    <script>
+        var margin = {top: 20, right: 25, bottom: 30, left: 40};
+        var svg = d3.select("svg"),
+            width = +svg.attr("width"),
+            height = +svg.attr("height");
+        width = width - margin.left - margin.right;
+        height = height - margin.top - margin.bottom;
+
+        var tipbox = d3.select("#div_template")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform",
+                    "translate(" + margin.left + "," + margin.top + ")");
+        var Tooltip = d3.select("#div_template")
+            .append("div")
+            .style("opacity", 0)
+            .attr("class", "tooltip")
+            .style("background-color", "white")
+            .style("border", "solid")
+            .style("border-width", "2px")
+            .style("border-radius", "5px")
+            .style("padding", "5px")
+
+        var mouseover = function(d) {
+            Tooltip
+                .style("opacity", 1)
+            d3.select(this)
+                .style("stroke", "black")
+                .style("opacity", 1)
+        }
+        var mousemove = function(d) {
+            Tooltip
+                .html("The exact value of<br>this cell is: " + d.value)
+                .style("left", (d3.mouse(this)[0]+70) + "px")
+                .style("top", (d3.mouse(this)[1]) + "px")
+        }
+        var mouseleave = function(d) {
+            Tooltip
+                .style("opacity", 0)
+            d3.select(this)
+                .style("stroke", "none")
+                .style("opacity", 0.8)
+        }
+
+        var simulation = d3.forceSimulation()
+            .force("link", d3.forceLink().id(function (d) { return d.id; }))
+            .force("charge", d3.forceManyBody())
+            .force("center", d3.forceCenter(width / 2, height / 2));
+
+        function dragstarted(d) {
+            if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+            d.fx = d.x;
+            d.fy = d.y;
+        }
+
+        function dragged(d) {
+            d.fx = d3.event.x;
+            d.fy = d3.event.y;
+        }
+
+        function dragended(d) {
+            if (!d3.event.active) simulation.alphaTarget(0);
+            d.fx = null;
+            d.fy = null;
+        }
+
+        document.getElementById('uploadHTMLFile').addEventListener('change', function () {
             var file;
-            for(var x = 0, xlen = this.files.length; x < xlen; x++) {
+            for (var x = 0, xlen = this.files.length; x < xlen; x++) {
                 file = this.files[x];
                 console.log(file.type);
-                if(file.type.indexOf('html') != -1) { // 非常简单的交验，判断文件是否是图片
+                if (file.type.indexOf('html') != -1) { // 非常简单的交验
                     var reader = new FileReader();//文件预览对象
                     reader.readAsText(file);//设置要预览的文件
-                    reader.onload = function(e) {//监听文件加载完成事件
+                    reader.onload = function (e) {//监听文件加载完成事件
                         data = e.target.result; //把预览图片的src设置为e.target.result属性。返回预览文件的二进制内存数据
-                        console.info(data)
                         d3.json("/apis/tools/domtree")
                             .header("Content-Type", "text/html")
                             .post(data, function (error, json) {
                                 if (error) throw error;
-                                root = json.tree;
-                                update();
+                                console.info(json)
+                                var graph = json.tree;
+                                if (error) throw error;
+
+                                var link = svg.append("g")
+                                    .attr("class", "links")
+                                    .selectAll("line")
+                                    .data(graph.links)
+                                    .enter().append("line");
+
+                                var node = svg.append("g")
+                                    .attr("class", "nodes")
+                                    .selectAll("circle")
+                                    .data(graph.nodes)
+                                    .enter().append("circle")
+                                    .attr("r", function(d){return d.size;})
+                                    .call(d3.drag()
+                                        .on("start", dragstarted)
+                                        .on("drag", dragged)
+                                        .on("end", dragended));
+
+                                node.append("title")
+                                    .text(function (d) { return d.id; });
+
+                                svg.selectAll()
+                                    .data(graph.nodes, function(d) {return d.id;})
+                                    .enter()
+                                    .append("rect")
+                                    // .attr("x", function(d) { return x(d.group) })
+                                    // .attr("y", function(d) { return y(d.variable) })
+                                    .attr("rx", 4)
+                                    .attr("ry", 4)
+                                    // .attr("width", x.bandwidth() )
+                                    // .attr("height", y.bandwidth() )
+                                    // .style("fill", function(d) { return myColor(d.value)} )
+                                    .style("stroke-width", 4)
+                                    .style("stroke", "none")
+                                    .style("opacity", 0.8)
+                                    .on("mouseover", mouseover)
+                                    .on("mousemove", mousemove)
+                                    .on("mouseleave", mouseleave);
+                                    
+                                simulation
+                                    .nodes(graph.nodes)
+                                    .on("tick", ticked);
+
+                                simulation.force("link")
+                                    .links(graph.links);
+
+                                function ticked() {
+                                    console.info('---')
+                                    link
+                                        .attr("x1", function (d) { return d.source.x; })
+                                        .attr("y1", function (d) { return d.source.y; })
+                                        .attr("x2", function (d) { return d.target.x; })
+                                        .attr("y2", function (d) { return d.target.y; });
+
+                                    node
+                                        .attr("cx", function (d) { return d.x; })
+                                        .attr("cy", function (d) { return d.y; });
+                                }
                             });
                     };
-                }            
+                }
             }
         });
-    </script>
-    <div id="viewer"></div>
-    <script>
-
-        var width = 1800,
-            height = 950,
-            root;
-
-        var force = d3.layout.force()
-            .size([width, height])
-            .on("tick", tick);
-
-        var root = d3.select("#viewer");
-        var svg = root.append("svg")
-            .attr("width", width)
-            .attr("height", height);
-
-        var link = svg.selectAll(".link"),
-            node = svg.selectAll(".node");
-
-            function lapsedZoomFit(ticks, transitionDuration) { 
-                for (var i = ticks || 100; i > 0; --i) force.tick(); 
-                force.stop(); 
-                zoomFit(transitionDuration); 
-            } 
-
-            function zoomFit(transitionDuration) { 
-                var bounds = root.node().getBBox(); 
-                var parent = root.node().parentElement; 
-                var fullWidth = parent.clientWidth || parent.parentNode.clientWidth, 
-                fullHeight = parent.clientHeight || parent.parentNode.clientHeight; 
-                var width = bounds.width, 
-                height = bounds.height; 
-                var midX = bounds.x + width/2, 
-                midY = bounds.y + height/2; 
-                if (width == 0 || height == 0) return; // nothing to fit 
-                var scale = 0.85/Math.max(width/fullWidth, height/fullHeight); 
-                var translate = [fullWidth/2 - scale * midX, fullHeight/2 - scale * midY]; 
-
-                console.trace("zoomFit", translate, scale); 
-
-                root.transition() 
-                    .duration(transitionDuration || 0) // milliseconds 
-                    .call(zoom.translate(translate).scale(scale).event); 
-            } 
-
-        function update() {
-            var nodes = flatten(root),
-                links = d3.layout.tree().links(nodes);
-            // console.info(links)
-
-            // Restart the force layout.
-            force
-                .nodes(nodes)
-                .links(links)
-                .start();
-
-            // Update the links…
-            link = link.data(links, function (d) { return d.target.id; });
-
-            // Exit any old links.
-            link.exit().remove();
-
-            // Enter any new links.
-            link.enter().insert("line", ".node")
-                .attr("class", "link")
-                .attr("x1", function (d) { return d.source.x; })
-                .attr("y1", function (d) { return d.source.y; })
-                .attr("x2", function (d) { return d.target.x; })
-                .attr("y2", function (d) { return d.target.y; });
-
-            // Update the nodes…
-            node = node.data(nodes, function (d) { return d.id; }).style("fill", color);
-
-            // Exit any old nodes.
-            node.exit().remove();
-
-            // Enter any new nodes.
-            node.enter().append("circle")
-                .attr("class", "node")
-                .attr("cx", function (d) { return d.x; })
-                .attr("cy", function (d) { return d.y; })
-                .attr("r", function (d) { return Math.sqrt(d.size) / 10 || 4.5; })
-                .style("fill", color)
-                .on("click", click)
-                .call(force.drag);
-            //disply title
-            node.enter().append("title")
-                .text(function(d) { return d.name});
-        }
-
-        function tick() {
-            link.attr("x1", function (d) { return d.source.x; })
-                .attr("y1", function (d) { return d.source.y; })
-                .attr("x2", function (d) { return d.target.x; })
-                .attr("y2", function (d) { return d.target.y; });
-
-            node.attr("cx", function (d) { return d.x; })
-                .attr("cy", function (d) { return d.y; });
-        }
-
-        // Color leaf nodes orange, and packages white or blue.
-        function color(d) {
-            return d._children ? "#3182bd" : d.children ? "#c6dbef" : "#fd8d3c";
-        }
-
-        // Toggle children on click.
-        function click(d) {
-            if (!d3.event.defaultPrevented) {
-                if (d.children) {
-                    d._children = d.children;
-                    d.children = null;
-                } else {
-                    d.children = d._children;
-                    d._children = null;
-                }
-                update();
-            }
-        }
-
-        // Returns a list of all nodes under the root.
-        function flatten(root) {
-            var nodes = [], i = 0;
-
-            function recurse(node) {
-                if (node.children) node.children.forEach(recurse);
-                if (!node.id) node.id = ++i;
-                nodes.push(node);
-            }
-
-            recurse(root);
-            // console.info(nodes.length)
-            return nodes;
-        }
-
     </script>
 </body>
 
