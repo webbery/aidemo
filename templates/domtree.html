@@ -5,11 +5,9 @@
 <head>
     <meta charset="utf-8" />
     <title>DOM工具</title>
-    <!-- <link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" type="text/css" /> -->
-    <!-- <script src="https://lib.sinaapp.com/js/jquery/3.1.0/jquery-3.1.0.min.js"></script> -->
-    <!-- <script src="https://libs.cdnjs.net/twitter-bootstrap/3.4.1/js/bootstrap.min.js" type="text/javascript"></script> -->
-    <!-- <script src="http://d3js.org/d3.v3.min.js"></script> -->
-    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="https://gw.alipayobjects.com/os/antv/pkg/_antv.g2-3.5.1/dist/g2.min.js"></script>
+    <script src="https://gw.alipayobjects.com/os/antv/pkg/_antv.data-set-0.10.1/dist/data-set.min.js"></script>
+    <script src="https://gw.alipayobjects.com/os/antv/assets/lib/jquery-3.2.1.min.js"></script>
     <style>
         .nodes circle {
             cursor: pointer;
@@ -28,76 +26,8 @@
 <body>
     <label class="ui_button ui_button_primary" for="uploadHTMLFile">选择</label>
     <form><input type="file" id="uploadHTMLFile" style="position:absolute;clip:rect(0 0 0 0);"></form>
-    <svg width="960" height="600"></svg>
-    <div id="div_template"></div>
+    <div id="mountNode"></div>
     <script>
-        var margin = {top: 20, right: 25, bottom: 30, left: 40};
-        var svg = d3.select("svg"),
-            width = +svg.attr("width"),
-            height = +svg.attr("height");
-        width = width - margin.left - margin.right;
-        height = height - margin.top - margin.bottom;
-
-        var tipbox = d3.select("#div_template")
-            .append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform",
-                    "translate(" + margin.left + "," + margin.top + ")");
-        var Tooltip = d3.select("#div_template")
-            .append("div")
-            .style("opacity", 0)
-            .attr("class", "tooltip")
-            .style("background-color", "white")
-            .style("border", "solid")
-            .style("border-width", "2px")
-            .style("border-radius", "5px")
-            .style("padding", "5px")
-
-        var mouseover = function(d) {
-            Tooltip
-                .style("opacity", 1)
-            d3.select(this)
-                .style("stroke", "black")
-                .style("opacity", 1)
-        }
-        var mousemove = function(d) {
-            Tooltip
-                .html("The exact value of<br>this cell is: " + d.value)
-                .style("left", (d3.mouse(this)[0]+70) + "px")
-                .style("top", (d3.mouse(this)[1]) + "px")
-        }
-        var mouseleave = function(d) {
-            Tooltip
-                .style("opacity", 0)
-            d3.select(this)
-                .style("stroke", "none")
-                .style("opacity", 0.8)
-        }
-
-        var simulation = d3.forceSimulation()
-            .force("link", d3.forceLink().id(function (d) { return d.id; }))
-            .force("charge", d3.forceManyBody())
-            .force("center", d3.forceCenter(width / 2, height / 2));
-
-        function dragstarted(d) {
-            if (!d3.event.active) simulation.alphaTarget(0.3).restart();
-            d.fx = d.x;
-            d.fy = d.y;
-        }
-
-        function dragged(d) {
-            d.fx = d3.event.x;
-            d.fy = d3.event.y;
-        }
-
-        function dragended(d) {
-            if (!d3.event.active) simulation.alphaTarget(0);
-            d.fx = null;
-            d.fy = null;
-        }
-
         document.getElementById('uploadHTMLFile').addEventListener('change', function () {
             var file;
             for (var x = 0, xlen = this.files.length; x < xlen; x++) {
@@ -108,72 +38,81 @@
                     reader.readAsText(file);//设置要预览的文件
                     reader.onload = function (e) {//监听文件加载完成事件
                         data = e.target.result; //把预览图片的src设置为e.target.result属性。返回预览文件的二进制内存数据
-                        d3.json("/apis/tools/domtree")
-                            .header("Content-Type", "text/html")
-                            .post(data, function (error, json) {
-                                if (error) throw error;
-                                console.info(json)
-                                var graph = json.tree;
-                                if (error) throw error;
-
-                                var link = svg.append("g")
-                                    .attr("class", "links")
-                                    .selectAll("line")
-                                    .data(graph.links)
-                                    .enter().append("line");
-
-                                var node = svg.append("g")
-                                    .attr("class", "nodes")
-                                    .selectAll("circle")
-                                    .data(graph.nodes)
-                                    .enter().append("circle")
-                                    .attr("r", function(d){return d.size;})
-                                    .call(d3.drag()
-                                        .on("start", dragstarted)
-                                        .on("drag", dragged)
-                                        .on("end", dragended));
-
-                                node.append("title")
-                                    .text(function (d) { return d.id; });
-
-                                svg.selectAll()
-                                    .data(graph.nodes, function(d) {return d.id;})
-                                    .enter()
-                                    .append("rect")
-                                    // .attr("x", function(d) { return x(d.group) })
-                                    // .attr("y", function(d) { return y(d.variable) })
-                                    .attr("rx", 4)
-                                    .attr("ry", 4)
-                                    // .attr("width", x.bandwidth() )
-                                    // .attr("height", y.bandwidth() )
-                                    // .style("fill", function(d) { return myColor(d.value)} )
-                                    .style("stroke-width", 4)
-                                    .style("stroke", "none")
-                                    .style("opacity", 0.8)
-                                    .on("mouseover", mouseover)
-                                    .on("mousemove", mousemove)
-                                    .on("mouseleave", mouseleave);
-                                    
-                                simulation
-                                    .nodes(graph.nodes)
-                                    .on("tick", ticked);
-
-                                simulation.force("link")
-                                    .links(graph.links);
-
-                                function ticked() {
-                                    console.info('---')
-                                    link
-                                        .attr("x1", function (d) { return d.source.x; })
-                                        .attr("y1", function (d) { return d.source.y; })
-                                        .attr("x2", function (d) { return d.target.x; })
-                                        .attr("y2", function (d) { return d.target.y; });
-
-                                    node
-                                        .attr("cx", function (d) { return d.x; })
-                                        .attr("cy", function (d) { return d.y; });
+                        $.ajax({
+                            type: 'POST',
+                            url: "/apis/tools/domtree",
+                            data: data,
+                            dataType: "text/html",
+                            error: function (e) {
+                                if(e.status!=200){
+                                    console.info(e.status);
+                                    return;
                                 }
-                            });
+                                // console.info(e.responseText)
+                                var result = JSON.parse(e.responseText).tree;
+                                var dv = new DataSet.View().source(result, {
+                                    type: 'hierarchy'
+                                });
+                                dv.transform({
+                                    type: 'hierarchy.tree'
+                                });
+
+                                var chart = new G2.Chart({
+                                    container: 'mountNode',
+                                    forceFit: true,
+                                    height: window.innerHeight,
+                                    padding: [50, 0, 20, 0]
+                                });
+                                chart.axis(false);
+                                chart.legend(false);
+                                chart.coord('polar');
+
+                                var edgeView = chart.view();
+                                edgeView.source(dv.getAllLinks().map(function (link) {
+                                    return {
+                                        x: [link.source.x, link.target.x],
+                                        y: [link.source.y, link.target.y],
+                                        source: link.source.id,
+                                        target: link.target.id
+                                    };
+                                }));
+                                edgeView.edge().position('x*y').shape('smooth') // vhv
+                                    .color('grey').opacity(0.5).tooltip('source*target');
+
+                                var nodeView = chart.view();
+                                nodeView.source(dv.getAllNodes().map(function (node) {
+                                    // console.info(node)
+                                    return {
+                                        hasChildren: !!(node.data.children && node.data.children.length),
+                                        name: node.data.name,
+                                        value: node.data.size,
+                                        depth: node.depth,
+                                        x: node.x,
+                                        y: node.y
+                                    };
+                                }));
+                                nodeView.point().position('x*y').color('hasChildren').size('value',function(value){
+                                    console.info(value)
+                                    return value;
+                                }).label('name', {
+                                    offset: 0,
+                                    labelEmit: true,
+                                    textStyle: function textStyle(text, item) {
+                                        var textAlign = item.textAlign;
+                                        if (item.hasChildren) {
+                                            textAlign = textAlign === 'left' ? 'right' : 'left';
+                                        }
+                                        return {
+                                            fill: 'grey',
+                                            fontSize: 12,
+                                            textAlign: textAlign
+                                        };
+                                    }
+                                });
+
+                                chart.render();
+                            }
+                        });
                     };
                 }
             }
